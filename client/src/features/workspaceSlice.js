@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { dummyWorkspaces } from "../assets/assets";
+import {api} from "../configs/api"
 export const fetchworkspaces =  createAsyncThunk("workspace/fetchworkspaces", async ({getToken}) => {
     try {
         const {data} = await api.get('/api/workspaces', {headers : {Authorization : `Bearer ${await getToken()}`}})
