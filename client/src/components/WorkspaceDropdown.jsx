@@ -4,8 +4,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { setCurrentWorkspace } from "../features/workspaceSlice";
 import { useNavigate } from "react-router-dom";
 import { dummyWorkspaces } from "../assets/assets";
+import { useOrganizationList} from "@clerk/clerk-react"
 
 function WorkspaceDropdown() {
+
+    const {} = useOrganizationList({})
 
     const { workspaces } = useSelector((state) => state.workspace);
     const currentWorkspace = useSelector((state) => state.workspace?.currentWorkspace || null);

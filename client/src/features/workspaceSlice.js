@@ -1,10 +1,9 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { dummyWorkspaces } from "../assets/assets";
-import {api} from "../configs/api"
+import api from "../configs/api"
 export const fetchworkspaces =  createAsyncThunk("workspace/fetchworkspaces", async ({getToken}) => {
     try {
         const {data} = await api.get('/api/workspaces', {headers : {Authorization : `Bearer ${await getToken()}`}})
-        return data.workspaces || [];
+        return data.data || [];
     } catch (error) {
         console.log(error?.response?.data?.message || error.message)
         return [];
@@ -47,7 +46,7 @@ const workspaceSlice = createSlice({
             }
         },
         deleteWorkspace: (state, action) => {
-            state.workspaces = state.workspaces.filter((w) => w._id !== action.payload);
+            state.workspaces = state.workspaces.filter((w) => w.id !== action.payload);
         },
         addProject: (state, action) => {
             state.currentWorkspace.projects.push(action.payload);
