@@ -30,6 +30,7 @@ const syncUserCreation = inngest.createFunction(
 );
 
 
+
 //Inngest function to delete user data to a database
 
 const syncUserDeletion = inngest.createFunction(
@@ -48,24 +49,28 @@ const syncUserDeletion = inngest.createFunction(
 //Inngest function to update user data to a database
 
 const syncUserUpdation = inngest.createFunction(
-    {id: 'update-user-with-clerk'},
-    {event : 'clerk/user.updated'},
-    async({event})=>{
-        const {data} = event
-        await prisma.user.update({
-           where : {
-            id: data.id,
-           },
-           data : {
-               
-                email : data.email_addresses[0]?.email_address,
-                name: data?.first_name + " " + data?.last_name,
-                image : data?.image_url,
-            }
-           
-        })
-    }
-)
+  { id: "update-user-with-clerk" },
+  { event: "clerk/user.updated" },
+  async ({ event }) => {
+    const { data } = event;
+
+    await prisma.user.upsert({
+      where: { id: data.id },
+      update: {
+        email: data.email_addresses[0]?.email_address,
+        name: `${data.first_name ?? ""} ${data.last_name ?? ""}`.trim(),
+        image: data.image_url ?? "",
+      },
+      create: {
+        id: data.id,
+        email: data.email_addresses[0]?.email_address,
+        name: `${data.first_name ?? ""} ${data.last_name ?? ""}`.trim(),
+        image: data.image_url ?? "",
+      },
+    });
+  }
+);
+
 
 //Inngest function to save workspace data to a database 
 /*
