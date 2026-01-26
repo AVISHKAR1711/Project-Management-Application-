@@ -102,7 +102,7 @@ const getUserWorkspaces = asyncHandler(async (req, res) => {
     if (!userId) {
         throw new ApiError(401, "Unauthorized user")
     }
-
+ console.log("USER ID FROM TOKEN:", userId);
     const workspaces = await prisma.workspace.findMany({
         where: {
             members: {
@@ -131,10 +131,11 @@ const getUserWorkspaces = asyncHandler(async (req, res) => {
             owner: true
         }
     })
+    console.log("WORKSPACES FROM DB:", workspaces);
 
     return res
         .status(200)
-        .json(new ApiResponse(200, workspaces, "Workspaces fetched successfully"))
+        .json(new ApiResponse(200, [...workspaces], "Workspaces fetched successfully"))
 })
 
 /**

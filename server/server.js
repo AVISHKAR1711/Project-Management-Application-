@@ -20,6 +20,8 @@ app.use("/api/inngest", serve({ client: inngest, functions }));
 // Rutes
 app.use("/api/workspaces",protect, workspaceRouter)
 
+console.log("API DATABASE_URL:", process.env.DATABASE_URL);
+
 const PORT = process.env.PORT || 5001
 
 app.listen(PORT, ()=> console.log(`Server running on port ${PORT}`))
