@@ -41,7 +41,7 @@ function WorkspaceDropdown() {
         if(currentWorkspace && isLoaded){
             setActive({organization : currentWorkspace.id})
         }
-    }, currentWorkspace,isLoaded)
+    }, [currentWorkspace,isLoaded])
 
     return (
         <div className="relative m-4" ref={dropdownRef}>

@@ -22,9 +22,9 @@ app.use("/api/inngest", serve({ client: inngest, functions }));
 
 // Routes
 app.use("/api/workspaces",protect, workspaceRouter)
-app.use("/app/projects",protect,projectRouter)
-app.use("/app/tasks", protect, taskRouter)
-app.use("/app/comments", protect, commentRouter)
+app.use("/api/projects",protect,projectRouter)
+app.use("/api/tasks", protect, taskRouter)
+app.use("/api/comments", protect, commentRouter)
  
 console.log("API DATABASE_URL:", process.env.DATABASE_URL);
 

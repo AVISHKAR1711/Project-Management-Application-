@@ -41,6 +41,7 @@ export const getTaskComments = asyncHandler(async(req, res) => {
         where: {taskId},
         include: {user : true}
     })
+    console.log(comments);
      res.status(200).json(new ApiResponse(200, {comments}, "comments get successfully"))
 
 })

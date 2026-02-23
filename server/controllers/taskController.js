@@ -7,25 +7,49 @@ import { asyncHandler } from "../utils/asyncHandler.js"
 // Create task
 
 export const createTask = asyncHandler( async(req, res) => {
+    console.log("🔥 CREATE TASK API HIT");
+
     const {userId} = await req.auth();
+    console.log("USER ID:", userId);
+
 
     const {projectId, title, description, type, status, priority, assigneeId, due_date} = req.body;
+    console.log("REQ BODY:", req.body);
+    if (!projectId) {
+  console.log("❌ projectId missing");
+}
+
+
 
     const origin = req.get('origin')
 
     // check if user has admin role for project
 
+     console.log("REQ BODY:", req.body);
+    console.log("USER ID:", userId);
+    
     const project = await prisma.project.findUnique({
         where : {id: projectId},
         include : {members : {include :{user: true}}}
     })
 
+    if (!projectId) {
+  console.log("❌ projectId missing");
+}
+
+console.log("ASSIGNEE:", assigneeId);
+console.log("PROJECT MEMBERS:", project?.members);
+
+
+   
+
+
       if(!project){
-             return res.status(404).json(new ApiResponse(404, {}, "project not found"))
-        }else if(project.team_lead !== userId){
-             return res.status(403).json(new ApiResponse(404, {}, "You dont have admin privillages for this project"))
+             throw new ApiError(404, "Project not found")
+    //    }else if(project.team_lead !== userId){
+      //       throw new ApiError(404, "You dont have admin privillages for this project")
         }else if(assigneeId && !project.members.find((member)=>member.user.id === assigneeId )){
-             return res.status(403).json(new ApiResponse(404, {}, "assignee is not a member of the project/workspace"))
+            throw new ApiError(404, "Assignee is not a memeber of project/workspace")
         }
 
         const task = await prisma.task.create({
@@ -36,9 +60,15 @@ export const createTask = asyncHandler( async(req, res) => {
                 priority,
                 assigneeId,
                 status,
+                type,
                 due_date : new Date(due_date)
-            }
+            },
+            
         })
+        console.log("CREATING TASK...");
+        console.log("TASK CREATED:", task);
+
+
 
         const taskWithAssignee = await prisma.task.findUnique({
              where: {id: task.id},
@@ -64,7 +94,7 @@ export const updateTask = asyncHandler( async(req, res) => {
     })
 
     if(!task){
-          return res.status(404).json(new ApiResponse(404, {}, "task not found"))
+          throw new ApiError(404, "Task not found")
     }
     const {userId} = await req.auth();
 
@@ -76,9 +106,9 @@ export const updateTask = asyncHandler( async(req, res) => {
     })
 
       if(!project){
-             return res.status(404).json(new ApiResponse(404, {}, "project not found"))
+             throw new ApiError(404, "Project not found")
         }else if(project.team_lead !== userId){
-             return res.status(403).json(new ApiResponse(404, {}, "You dont have admin privillages for this project"))
+            throw new ApiError(404, "You dont have admin privillages for this project")
         }
 
         const updatedTask = await prisma.task.update({
@@ -101,7 +131,7 @@ export const deleteTask = asyncHandler( async(req, res) => {
     })
 
     if(tasks.length === 0){
-        return res.status(404).json(new ApiResponse(404, {}, "Task not found"))
+        throw new ApiError(404, "Task not found")
     }
 
     const project = await prisma.project.findUnique({
@@ -110,9 +140,9 @@ export const deleteTask = asyncHandler( async(req, res) => {
     })
   
     if(!project){
-             return res.status(404).json(new ApiResponse(404, {}, "project not found"))
+             throw new ApiError(404, "Project not found")
         }else if(project.team_lead !== userId){
-             return res.status(403).json(new ApiResponse(404, {}, "You dont have admin privillages for this project"))
+             throw new ApiError(404, "You dont have admin privillages for this project")
         }
     await prisma.task.deleteMany({
         where: {id : {in: tasksIds}}

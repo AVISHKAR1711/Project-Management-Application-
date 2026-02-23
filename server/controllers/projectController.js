@@ -18,17 +18,25 @@ export const createProject = asyncHandler( async(req, res) => {
         include : {members : {include : {user : true}}}
     })
     if(!workspace){
-        return res.status(404).json(new ApiResponse(404, {}, "workspacenot found"))
+        throw new ApiError(402, "Workspace not found")
     }
     if(!workspace.members.some((member)=> member.userId=== userId && member.role === "ADMIN")){
-        return res.status(404).json(new ApiResponse(404, {}, "You have not permission to create projects in this workspaces"))
+       
+    throw new ApiError(403, "You have not permisssion to create the project in this workspace")
     }
+
     // Get Team Lead using email
 
     const teamLead = await prisma.user.findUnique({
         where : {email : team_lead},
         select : {id : true}
     })
+
+    if(!teamLead){
+   throw new ApiError(400, "Team lead not found");
+}
+
+
     const project = await prisma.project.create({
         data : {
             workspaceId,
@@ -47,7 +55,7 @@ export const createProject = asyncHandler( async(req, res) => {
     if(team_members?.length > 0){
         const membersToAdd  = []
         workspace.members.forEach(member=> {
-            if(team_members.include(member.user.email)){
+            if(team_members.includes(member.user.email)){
                 membersToAdd.push(member.user.id)
             }
             
@@ -143,7 +151,7 @@ export const addMember = asyncHandler( async(req, res) => {
 
     // CHeck if user is alredy a memeber
 
-    const existingMember = project.members.find((member)=> member.email === email)
+    const existingMember = project.members.find((member)=> member.user.email === email)
 
     if(existingMember){
          return res.status(404).json(new ApiResponse(404, {}, "User is already a memeber"))
